@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'applix'
+
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+require 'kissbox'
+
+#Thread.abort_on_exception = true
+$stderr.sync = true
+$stdout.sync = true
+
+def main argv
+  options = Hash.from_argv argv
+  args = (options.delete :args)
+  service_url = args.shift
+
+  puts " -- starting #{File.basename __FILE__} at #{Time.now}"
+  daemon = Gom::Remote::Daemon.new(service_url) do |path|
+    Kissbox::Service.new path
+  end
+  daemon.run # { |*args| puts " .. tacker -#{args.inspect}" }
+
+rescue => e
+  puts " ## #{e}\n -> #{e.backtrace.join "\n    "}"
+end
+
+main ARGV
+# vim: syntax=ruby
